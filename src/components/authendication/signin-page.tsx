@@ -1,19 +1,27 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import axios from 'axios'
 import { Redirect } from 'react-router-dom'
+import { isDevlopement, cookie } from '../../App'
+import { Context } from '../../context'
 
-const SignInPage: React.FC = () => {
+export const SignInPage: React.FC = () => {
+    const [toLoginInPage, setToLogininPage] = useState(false)
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
+    const [errMSg, setErrMsg] = useState("")
+    const [toMainPage, setToMainPage] = useState(false)
+    const context = useContext(Context)
+
+    useEffect(() => { setErrMsg("") }, [email, password])
 
     const validate = () => {
         if (email === "" || password === "") {
-            // set msg    
+            setErrMsg("all fields required.")
         } else if (email.length < 6) {
-            // msg
+            setErrMsg("enter an valid email id.")
         } else if (password.length < 3) {
-            // msg
+            setErrMsg("ur password is too short.")
         } else {
             return true 
         }
@@ -23,42 +31,55 @@ const SignInPage: React.FC = () => {
         let isValid = validate()
 
         if (isValid) {
+            setLoading(true)
 
-            let apiEndpoint = ""
+            let url = isDevlopement ?
+                      "http://localhost:5000/api/auth/signin" : 
+                      ""
 
-            axios.post(apiEndpoint, {
-                    email: email,
-                    password : password
+            axios.post(url, { email: email, password : password })
+                .then(response => {
+                    
+                    if (response.data.err) setErrMsg(response.data.err)
+
+                    if (response.data.token) {
+                        cookie.set('token', response.data.token)
+                        context.dispatch({ type : "authendicate" })
+                        setToMainPage(true)
+                    }
+
                 })
-                .then(res => {
-                
-                    console.log(res)
-                })
-                .catch(err => {
-                    console.log(err)
-                })
+                .catch((_) => setErrMsg("something went wrong."))
+                .finally(() => setLoading(false))
         }
     }
 
-    const backToLogin = () => {
-        return ( <Redirect to="/login"/> )
-    }
+    if (toMainPage) { return ( <Redirect to="/dashboard"/> )}
+
+    if (toLoginInPage) { return ( <Redirect to="/login"/> )}
 
     return (
         <main>
-
+            <h3> signin page</h3>
             <div> 
+
+               { errMSg !== "" ? <p> {errMSg} </p> : null}
+                { loading ? <p> loading... </p> : null}
+ 
+
                 <input 
                     type="email"
                     value={email}
                     placeholder="ur email id"
-                />
+                    onChange={(e) => setEmail(e.target.value)}
+                /><br/>
 
                 <input 
                     type="password"
                     value={password}
                     placeholder="password"
-                />
+                    onChange={(e) => setPassword(e.target.value)}
+                /><br/>
 
                 <button onClick={() => signin()}> 
                     sign in 
@@ -67,7 +88,7 @@ const SignInPage: React.FC = () => {
 
             <div>
                 <p> already have a account </p>  
-                <button onClick={() => backToLogin() }> 
+                <button onClick={() => setToLogininPage(true) }> 
                     login
                 </button>
             </div>
