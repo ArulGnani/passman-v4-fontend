@@ -3,12 +3,16 @@ import React from 'react'
 
 interface IinitState {
     auth : boolean,
-    passwords : any []
+    searchResult: any[],
+    orignalPasswords: any[],
+    show: any[]
 }
 
 const initState = {
     auth : false,
-    passwords : [] 
+    searchResult : [],
+    orignalPasswords: [],
+    show: []
 }
 
 const reducer = (state: IinitState, action: any) => {
@@ -20,15 +24,25 @@ const reducer = (state: IinitState, action: any) => {
                 ...state,
                 auth : true
             }
-        case "passwords":
+        case "setOrignalPasswordObj":
             return {
                 ...state,
-                passwords : [...action.payload]
+                orignalPasswords : [...action.payload]
             }
         case "newPassword":
             return {
                 ...state,
-                passwords : [{...action.payload},...state.passwords]
+                orignalPasswords : [{...action.payload},...state.orignalPasswords]
+            }
+        case "searchResult":
+            return {
+                ...state,
+                searchResult: [...action.payload]
+            }
+        case "updateShow":
+            return {
+                ...state,
+                show: [...action.payload]
             }
         default:
             return state

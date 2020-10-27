@@ -1,0 +1,34 @@
+
+#dashboard {
+    /* border: 2px solid salmon; */
+    /* width: 100vw; */
+    width: 100%;
+    height: auto;
+    color: white;
+}
+
+#dashboard-comp {
+    /* border: 2px solid blue; */
+    padding: 4px 20px;
+    width: 70%;
+    /* width: 70vw; */
+    margin: auto;
+} 
+
+@media screen and (max-width: 500px) {
+
+    #dashboard {
+        /* width: 100vw; */
+        width: 100%;
+    }
+
+    #dashboard-comp {
+        /* border: 2px solid blue; */
+        padding: 4px 10px;
+        width: 95%;
+
+    }
+
+
+
+} 

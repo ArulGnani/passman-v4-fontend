@@ -1,0 +1,60 @@
+
+header {
+    /* border: 2px solid red; */
+    box-shadow: 0px 10px 73px 26px rgba(20, 20, 20, 0.89);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: rgba(39, 39, 39, 0.651);
+} 
+
+header img {
+    margin-left: 10px;
+    width: 50px;
+    height: 50px;
+    transition: transform 0.3s cubic-bezier(0.6, -0.28, 0.74, 0.05);
+}
+
+header img:hover {
+    transform: scale(0.8);
+}
+
+header div {
+    margin-left: auto;
+}
+
+header div button {
+    background: transparent;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    transition: 0.1s ease-in-out;
+}
+
+header div button img {
+    height: 30px;
+    width: 30px;
+    filter: invert();
+    transition: 0.2s ease-out;
+}
+
+header div button:hover {
+    background: rgba(71, 71, 71, 0.438);
+}
+
+header div button img:hover {
+    transform: scale(0.8);
+}
+
+@media screen and (max-width: 500px) {
+    
+    header {
+        width: 100%;
+    }
+
+    header div button {
+        margin-right: 10px;
+    }
+
+}

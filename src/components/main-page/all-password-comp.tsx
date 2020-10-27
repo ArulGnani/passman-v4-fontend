@@ -3,24 +3,39 @@ import { ViewPassWord } from './view-password-comp';
 import { cookie, isDevlopement } from '../../App';
 import Axios from 'axios';
 import { Context } from '../../context';
+import './styles/all-password.css'
 
 
-export const AllPassWord: React.FC = () => {
+export const AllPassWords: React.FC = () => {
     const context = useContext(Context)
     const [viewPassword, setViewPassword] = useState(false)
     const [msg, setMsg] = useState("")
     const [loading, setLoading] = useState(false)
+    const [passwordObj, setPasswordObj] = useState<any>({})
+    const [currScreenWidth, setCurrScreenWidth] = useState(0)
 
     useEffect(() => { getAllPasswords() }, [])
 
     const getAllPasswords = async () => {
         let token = cookie.get('token')
+        let passObjs = context.state.orignalPasswords.length 
 
-        if (token) {
+        if (passObjs !== 0) {
+            console.log("no request made")
+            let existingObjs = context.state.orignalPasswords
+
+            context.dispatch({
+                type: "updateShow",
+                payload: existingObjs
+            })
+        }
+
+        if (token && passObjs === 0) {
+            setLoading(true)
 
             let url = isDevlopement ? 
                       "http://localhost:5000/api/get-all-passwords" : 
-                      ""
+                      "https://passman-v4-backend.herokuapp.com/api/get-all-passwords"
 
             Axios.get(url, { headers : { token : token }})
                 .then(response => {
@@ -29,7 +44,12 @@ export const AllPassWord: React.FC = () => {
 
                     if (response.data) {
                         context.dispatch({ 
-                            type: "passwords",
+                            type: "setOrignalPasswordObj",
+                            payload: response.data
+                        })
+
+                        context.dispatch({
+                            type: "updateShow",
                             payload: response.data
                         })
                     }
@@ -39,30 +59,96 @@ export const AllPassWord: React.FC = () => {
         }
     }
 
+    const showPassword = (obj: {}) => {
+        setPasswordObj(obj)
+        setViewPassword(true)
+    }
 
     if (viewPassword) {
-        // return ( <Redirect to="/view/:pid" /> )
+        return ( 
+            <ViewPassWord 
+                name={passwordObj.name}
+                domin={passwordObj.domin}
+                password={passwordObj.password}
+                open={true}
+                closePopup={() => setViewPassword(false)}
+            />
+        )
     }
 
     return (
-        <section>
-            { loading ? <p> loading. </p> : null }
-            {
-                context.state.passwords.map((obj, idx) => {
+        <section id="all-passwords">
+            
+            { loading ? 
+                <p className="loading"> loading... </p> 
+            : null }
 
-                    return (
-                        <div key={idx}>
+            { msg !== "" ? 
+                <p className="err"> {msg} </p>
+            :null}
 
-                            <p> domin : {obj.domin} </p>
-                            <p> name : {obj.name}</p>
+            { window.innerWidth < 500 ? 
+                <div id="pass-objs-cards">
+                    { context.state.show.map((obj, idx) => {
+                        return (
+                            <div key={idx} className="obj-card"> 
+                                <p> Domin : 
+                                    <b> { obj.domin } </b>
+                                </p>
+                                <p> Name : 
+                                    <b> { obj.name } </b>
+                                </p>
+                                <p> password: 
+                                    <button 
+                                        onClick={()=>showPassword(obj)}
+                                    >
+                                        open
+                                    </button>
+                                </p>
+                            </div>
+                        )
+                    })}
 
-                            <button onClick={() => setViewPassword(true)}> 
-                                open 
-                            </button>
-                        </div>
-                    )
-                })
-            }
+                </div> 
+            : null }
+
+            { window.innerWidth > 500 ? 
+                <table>
+                    <thead>
+                        <tr>
+                            <th> Domin </th> 
+                            <th> name </th>
+                            <th> open </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        { context.state.show.map((obj, idx) => {
+                            return (
+                                <tr key={idx} id="pass-obj">
+
+                                    <td>
+                                        <p> {obj.domin} </p>
+                                    </td>
+                                    
+                                    <td>
+                                        <p> {obj.name}</p>
+                                    </td>
+                                    
+                                    <td>
+                                        <button 
+                                            onClick={() => showPassword(obj)}
+                                            className="open-btn"
+                                        > 
+                                            open 
+                                        </button>
+                                    </td>
+                                </tr>
+                            )
+                        }) }
+                    </tbody>
+                </table> 
+            :null}
         </section>    
     )
 }   

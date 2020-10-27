@@ -1,26 +1,26 @@
 import React from 'react'
 import { Header } from './header'
 import { SearchComp } from './seach-comp'
-import { AllPassWord } from './all-password-comp'
+import { AllPassWords } from './all-password-comp'
 import { AddNewPassWord } from './add-new-password-btn'
+import './styles/dashboard.css'
 
 export const DashBorad: React.FC = () => {
-
-
     return (
-        <main>
+        <main id="dashboard">
             
             <Header/> 
 
-            <section>
+            <section id="dashboard-comp">
+    
+                <AddNewPassWord />
 
                 <SearchComp/>
 
-                <AddNewPassWord />
-
-                <AllPassWord/>
+                <AllPassWords/>
 
             </section>
         </main>
     )
 }
+ 

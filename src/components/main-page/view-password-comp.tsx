@@ -1,66 +1,63 @@
-import React, { useState } from 'react'; 
+import React, { useState, useEffect } from 'react'; 
 import ReactDOM from 'react-dom'
+import './styles/view-password.css'
+import closeIcon from '../../resource/close.png'
 
 interface Iprops {
     domin : string,
     name : string,
     password : string,
-    open : boolean
+    open: boolean,
+    closePopup : () => any
 }
 
-export const ViewPassWord = ({ domin, name, password }: Iprops) => {
+export const ViewPassWord = ({domin,name,password,closePopup,open}: Iprops) => {
     const [copied, setCopied] = useState(false)
     const [close, setClose] = useState(false)
-    const [open, setOpen] = useState(true)
 
     const copyPassword = () => {
-        if (!copied) {
+        console.log("clik")
+        if (copied === false) {
             navigator.clipboard.writeText(password)
-                .then(() => {
-                    setCopied(!copied)
-                })
+                .then(() => setCopied(true))
         }
     }
 
-    if (!open) return null
+    if (!open) return null 
 
     return ReactDOM.createPortal(
-        <section>
+        <div id="view-password">
+            <div id="view-password-comp">
             
-            <button onClick={() => setOpen(false)}> 
-                close 
-            </button>
-
-            { close === false ?
-                <div>
-                    { copied ? 
-                        <div>
-                            <p> copied... </p>
-
-                            <button onClick={() => setClose(!close)}> 
-                                X 
-                            </button>    
-                        </div>
-                    : null}
-                </div>
-            :null }
-           
-           
-            <div>
-            <p> Domin : {domin}</p>
-            </div>
-
-            <div>
-                <p> name : {name} </p>
-            </div>
-
-            <div>
-                <p>password</p>
-                
-                <button onClick={() => copyPassword}> 
-                    copy 
+                <button onClick={() => closePopup()} 
+                    id="view-pass-cls-btn"
+                > 
+                    <img src={closeIcon} alt="close"/> 
                 </button>
+
+                <div id="view-pass">
+
+                    { copied ? 
+                        <p id="copied"> copied. </p>
+                    :null}
+
+                    <p> Domin : 
+                        <b> {domin} </b> 
+                    </p>
+
+                    <p> name : 
+                        <b> {name} </b>
+                    </p>
+
+                    <div>
+                        <p>password</p>:
+                        
+                        <button onClick={() => copyPassword()}> 
+                            copy 
+                        </button>
+                    </div>
+                </div>               
             </div>
-        </section>
+        </div>
     ,document.getElementById("pop-up") as HTMLElement)
 }   

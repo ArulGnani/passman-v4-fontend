@@ -3,6 +3,7 @@ import { Redirect } from 'react-router-dom'
 import axios from 'axios'
 import { isDevlopement, cookie } from '../../App'
 import { Context } from '../../context'
+import './styles/login-page.css'
 
 export const LoginPage:React.FC = () => {
     const [toSigninPage, setToSigninPage] = useState(false)
@@ -35,22 +36,30 @@ export const LoginPage:React.FC = () => {
     
             let url = isDevlopement ?
                       "http://localhost:5000/api/auth/login" :
-                      ""
+                      "https://passman-v4-backend.herokuapp.com/api/auth/login"
 
             axios.post(url, { email: email, password : password })
                 .then(response => {
+                    setLoading(false)
 
                     if (response.data.err) setErrMsg(response.data.err)
                     
                     if (response.data.token) {
-                        cookie.set('token', response.data.token)
+                        
+                        let days7 = (60*60*24*7) * 1000
+
+                        cookie.set('token', response.data.token, {
+                            path : "/",
+                            expires : new Date(Date.now() + days7)
+                        })
                         context.dispatch({ type : "authendicate" })
                         setToMainPage(true)
                     }
-
                 })
-                .catch((_) => setErrMsg("something went wrong."))
-                .finally(() => setLoading(false))
+                .catch((_) => {
+                    setLoading(false)
+                    setErrMsg("something went wrong.")
+                })
         }
     }
 
@@ -59,36 +68,45 @@ export const LoginPage:React.FC = () => {
     if (toSigninPage) { return ( <Redirect to="/signin"/> )}
     
     return (
-        <main>
-            <h1> login page </h1>
-            <div>
-                
-                { errMSg !== "" ? <p> {errMSg} </p> : null}
-                { loading ? <p> loading... </p> : null}
- 
-                <input 
-                    type="email" 
-                    placeholder="ur email id" 
-                    value={email}    
-                    onChange={(e) => setEmail(e.target.value)}
-                /><br/>
+        <main id="login-page">
+            <section className="auth-section">
+                <h1> login page </h1>
 
-                <input 
-                    type="password" 
-                    placeholder="password" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                /><br/>
-                
-                <button onClick={() => login()}> login </button>
+                <div className="auth-form">
+            
+                    { errMSg !== "" ? 
+                        <p className="err"> {errMSg} </p> 
+                    : null}
+                    
+                    { loading ? 
+                        <p className="loading"> loading... </p> 
+                    : null}
+    
+                    <input 
+                        type="email" 
+                        placeholder="ur email id" 
+                        value={email}    
+                        onChange={(e) => setEmail(e.target.value)}
+                    /><br/>
 
-            </div>
-            <div>
-                <p> don't have an account </p>  
-                <button onClick={() => setToSigninPage(true) }> 
-                    sign in 
-                </button>
-            </div>
+                    <input 
+                        type="password" 
+                        placeholder="password" 
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    /><br/>
+                    
+                    <button onClick={() => login()}> login </button>
+
+                </div>
+
+                <div className="auth-option-section">
+                    <p> don't have an account </p>  
+                    <button onClick={() => setToSigninPage(true) }> 
+                        sign in 
+                    </button>
+                </div>
+            </section>
         </main>
     )
 }
